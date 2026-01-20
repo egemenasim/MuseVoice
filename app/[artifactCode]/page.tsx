@@ -56,8 +56,12 @@ export default async function ArtifactPage({ params }: PageProps) {
 
     if (langError || !languages) {
         console.error("Languages error:", langError)
-        // Handle gracefully or throw
-        return <div>Error loading languages</div>
+        // Return a minimal error UI
+        return (
+            <div className="min-h-screen flex items-center justify-center text-zinc-500">
+                Error loading content configuration.
+            </div>
+        )
     }
 
     // 3. Fetch All Translations for this artifact (to avoid waterfall on client)

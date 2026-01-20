@@ -6,10 +6,21 @@ import Link from "next/link"
 export const dynamic = 'force-dynamic'
 
 export default async function AdminPage() {
-    const { data: artifacts } = await supabase
+    const { data: artifacts, error } = await supabase
         .from('artifacts')
         .select('*')
         .order('created_at', { ascending: false })
+
+    if (error) {
+        console.error("Error fetching artifacts:", error)
+        // Return empty state or error message instead of crashing
+        return (
+            <div className="min-h-screen p-8 text-center text-zinc-500">
+                <p>Could not load artifacts. Please check your Supabase connection.</p>
+                <p className="text-xs mt-2 font-mono">{error.message}</p>
+            </div>
+        )
+    }
 
     // Note: Real admin would require Auth check here.
     // For now we assume RLS handles it or this page is protected by middleware (not implemented in this scope).
