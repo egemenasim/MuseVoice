@@ -13,9 +13,22 @@ export const createClient = (request: NextRequest) => {
         },
     });
 
+    if (!supabaseUrl || !supabaseKey) {
+        // If env vars are missing, we can't create the client.
+        // Return a dummy client or just the response to prevent crashing the middleware.
+        // Since middleware needs to return a client for the caller to use, we might throw a friendly error
+        // or returns a mock that does nothing.
+        // For now, let's log and return a basic response.
+        console.error("Supabase Env Vars missing in Middleware!")
+        return {
+            supabase: { auth: { getUser: () => Promise.resolve({ data: { user: null }, error: null }) } } as any,
+            response: supabaseResponse
+        }
+    }
+
     const supabase = createServerClient(
-        supabaseUrl!,
-        supabaseKey!,
+        supabaseUrl,
+        supabaseKey,
         {
             cookies: {
                 getAll() {
