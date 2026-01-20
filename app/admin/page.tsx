@@ -1,4 +1,5 @@
-import { supabase } from "@/lib/supabase"
+import { createClient } from "@/utils/supabase/server"
+import { cookies } from "next/headers"
 import { QRGenerator } from "@/components/QRGenerator"
 import Link from "next/link"
 
@@ -6,6 +7,9 @@ import Link from "next/link"
 export const dynamic = 'force-dynamic'
 
 export default async function AdminPage() {
+    const cookieStore = await cookies()
+    const supabase = createClient(cookieStore)
+
     const { data: artifacts, error } = await supabase
         .from('artifacts')
         .select('*')

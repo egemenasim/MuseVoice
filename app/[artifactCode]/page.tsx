@@ -1,10 +1,8 @@
 
 import { Suspense } from "react"
-import Image from "next/image"
 import { notFound } from "next/navigation"
-import { supabase } from "@/lib/supabase"
-import { LanguageSelector } from "@/components/LanguageSelector"
-import { AudioPlayer } from "@/components/AudioPlayer"
+import { createClient } from "@/utils/supabase/server"
+import { cookies } from "next/headers"
 import ClientPage from "./client-page"
 import type { Metadata } from "next"
 
@@ -17,6 +15,8 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { artifactCode } = await params
+    const cookieStore = await cookies()
+    const supabase = createClient(cookieStore)
 
     // Simple metadata fetch
     const { data: artifact } = await supabase
@@ -35,6 +35,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ArtifactPage({ params }: PageProps) {
     const { artifactCode } = await params
+    const cookieStore = await cookies()
+    const supabase = createClient(cookieStore)
 
     // 1. Fetch Artifact Base
     const { data: artifact, error: artifactError } = await supabase

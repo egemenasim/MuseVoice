@@ -1,6 +1,29 @@
-import Link from "next/link"
 
-export default function Home() {
+import { createClient } from '@/utils/supabase/server'
+import { cookies } from 'next/headers'
+import Link from 'next/link'
+
+// Force dynamic
+export const dynamic = 'force-dynamic'
+
+export default async function Home() {
+  const cookieStore = await cookies()
+  const supabase = createClient(cookieStore)
+
+  // Simple check to ensure connection is working by fetching languages
+  // We use languages table since 'todos' doesn't exist in our schema
+  const { data: languages, error } = await supabase.from('languages').select('count')
+
+  // Connection Status UI
+  let statusMessage = "✅ Connected to Supabase"
+  let statusColor = "text-green-500"
+
+  if (error) {
+    statusMessage = "❌ Connection Failed"
+    statusColor = "text-red-500"
+    console.error("Supabase Connection Error:", error)
+  }
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-8 text-center bg-gradient-to-b from-zinc-950 to-black">
       <div className="space-y-6 max-w-lg">
@@ -10,6 +33,12 @@ export default function Home() {
         <p className="text-xl text-zinc-400">
           Next-Generation Audio Guide Platform
         </p>
+
+        {/* Status Indicator */}
+        <div className={`p-4 rounded-lg bg-zinc-900 border border-zinc-800 ${statusColor} font-mono text-sm`}>
+          {statusMessage}
+          {error && <div className="text-xs mt-2 text-zinc-500">{error.message}</div>}
+        </div>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center mt-12">
           <Link
@@ -23,16 +52,6 @@ export default function Home() {
           >
             Scan QR Code
           </button>
-        </div>
-
-        <div className="mt-16 p-6 rounded-2xl bg-zinc-900/50 border border-zinc-800 text-left text-sm text-zinc-500">
-          <p className="font-mono mb-2 text-zinc-400">Setup Instructions:</p>
-          <ol className="list-decimal list-inside space-y-1">
-            <li>Create Supabase project & run <code>schema.sql</code></li>
-            <li>Connect Vercel project</li>
-            <li>Add env variables to Vercel & local <code>.env.local</code></li>
-            <li>Upload assets to Supabase Storage</li>
-          </ol>
         </div>
       </div>
     </div>
